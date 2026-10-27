@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   convert:
@@ -34,9 +34,11 @@ jobs:
                 --output-dir "$dest" "$notebook"
           done
 
-      - name: Upload HTML
-        uses: actions/upload-artifact@v7
-        with:
-          name: notebooks-html
-          path: html/
-          if-no-files-found: error
+      - name: Commit HTML
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add html/
+          git diff --cached --quiet || git commit -m "Update notebook HTML"
+          git push
