@@ -1,0 +1,42 @@
+
+name: Convert notebooks to HTML
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install nbconvert
+        run: pip install nbconvert
+
+      - name: Convert notebooks
+        shell: bash
+        run: |
+          find . -type f -name '*.ipynb' \
+            -not -path '*/.ipynb_checkpoints/*' \
+            -print0 | while IFS= read -r -d '' notebook; do
+              dest="html/$(dirname "${notebook#./}")"
+              mkdir -p "$dest"
+              jupyter nbconvert --to html \
+                --embed-images \
+                --output-dir "$dest" "$notebook"
+          done
+
+      - name: Upload HTML
+        uses: actions/upload-artifact@v7
+        with:
+          name: notebooks-html
+          path: html/
+          if-no-files-found: error
