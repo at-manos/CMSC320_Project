@@ -7811,29 +7811,51 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [10]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">stats</span>
 
+<span class="c1"># Columns chosen for our questions</span>
+<span class="n">selected_columns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"UNITID"</span><span class="p">,</span>           <span class="c1">## Unit ID for institution </span>
+    <span class="s2">"INSTNM"</span><span class="p">,</span>           <span class="c1">## Institution name</span>
+    <span class="s2">"CITY"</span><span class="p">,</span>
+    <span class="s2">"STABBR"</span><span class="p">,</span>           <span class="c1">## State postcode</span>
+    <span class="s2">"CONTROL"</span><span class="p">,</span>          <span class="c1">## Control of institution [Public, Private nonprofit, Private for-profit]</span>
+    <span class="s2">"PREDDEG"</span><span class="p">,</span>          <span class="c1">## Predominant undergraduate degree awarded</span>
+    <span class="s2">"ADM_RATE"</span><span class="p">,</span> 
+    <span class="s2">"SAT_AVG"</span><span class="p">,</span>
+    <span class="s2">"UGDS"</span><span class="p">,</span>             <span class="c1">## Enrollment of undergraduate certificate/degree-seeking students</span>
+    <span class="s2">"COSTT4_A"</span><span class="p">,</span>         <span class="c1">## Average cost of attendance (academic year institutions)</span>
+    <span class="s2">"TUITIONFEE_IN"</span><span class="p">,</span>    <span class="c1">## In-state tuition and fees</span>
+    <span class="s2">"C150_4"</span><span class="p">,</span>           <span class="c1">## Completion rate for first-time, full-time students at four-year institutions (150% of expected time to completion)</span>
+    <span class="s2">"MD_EARN_WNE_P10"</span><span class="p">,</span>  <span class="c1">## Median earnings of students working and not enrolled 10 years after entry</span>
+    <span class="s2">"DEBT_MDN"</span><span class="p">,</span>         <span class="c1">## The median original amount of the loan principal upon entering repayment</span>
+    <span class="s2">"PCTPELL"</span><span class="p">,</span>          <span class="c1">## Percentage of undergraduates who receive a Pell Grant</span>
+<span class="p">]</span>
+
+<span class="c1"># Treat "PS" as missing when reading</span>
 <span class="n">scorecard</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
     <span class="s2">"data/Most-Recent-Cohorts-Institution.csv"</span><span class="p">,</span>
-    <span class="n">na_values</span><span class="o">=</span><span class="p">[</span><span class="s2">"NA"</span><span class="p">],</span>
-    <span class="n">dtype</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">"OPEID"</span><span class="p">:</span> <span class="s2">"string"</span><span class="p">,</span>
-        <span class="s2">"OPEID6"</span><span class="p">:</span> <span class="s2">"string"</span><span class="p">,</span>
-        <span class="s2">"ZIP"</span><span class="p">:</span> <span class="s2">"string"</span><span class="p">,</span>
-        <span class="s2">"STABBR"</span><span class="p">:</span> <span class="s2">"string"</span><span class="p">,</span>
-    <span class="p">},</span>
+    <span class="n">usecols</span><span class="o">=</span><span class="n">selected_columns</span><span class="p">,</span>
+    <span class="n">na_values</span><span class="o">=</span><span class="p">[</span><span class="s2">"PS"</span><span class="p">,</span> <span class="s2">"NULL"</span><span class="p">,</span> <span class="s2">""</span><span class="p">],</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="p">{</span><span class="s2">"STABBR"</span><span class="p">:</span> <span class="s2">"string"</span><span class="p">},</span>
     <span class="n">low_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">numeric_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"UNITID"</span><span class="p">,</span> <span class="s2">"CONTROL"</span><span class="p">,</span> <span class="s2">"ADM_RATE"</span><span class="p">,</span> <span class="s2">"SAT_AVG"</span><span class="p">,</span> <span class="s2">"UGDS"</span><span class="p">,</span> <span class="s2">"COSTT4_A"</span><span class="p">]</span>
-<span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">numeric_columns</span><span class="p">:</span>
-    <span class="n">scorecard</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">scorecard</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"coerce"</span><span class="p">)</span>
+<span class="n">text_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"INSTNM"</span><span class="p">,</span> <span class="s2">"CITY"</span><span class="p">,</span> <span class="s2">"STABBR"</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">selected_columns</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">text_columns</span><span class="p">:</span>
+        <span class="n">scorecard</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">scorecard</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"coerce"</span><span class="p">)</span>
+        
+<span class="n">scorecard</span><span class="p">[</span><span class="s2">"CONTROL_LABEL"</span><span class="p">]</span> <span class="o">=</span> <span class="n">scorecard</span><span class="p">[</span><span class="s2">"CONTROL"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+    <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s2">"Public"</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s2">"Private nonprofit"</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s2">"Private for-profit"</span><span class="p">}</span>
+<span class="p">)</span>
 
-<span class="n">scorecard</span><span class="p">[</span><span class="s2">"UNITID"</span><span class="p">]</span> <span class="o">=</span> <span class="n">scorecard</span><span class="p">[</span><span class="s2">"UNITID"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"Int64"</span><span class="p">)</span>
-<span class="n">scorecard</span><span class="p">[[</span><span class="s2">"UNITID"</span><span class="p">,</span> <span class="s2">"INSTNM"</span><span class="p">,</span> <span class="s2">"CITY"</span><span class="p">,</span> <span class="s2">"STABBR"</span><span class="p">,</span> <span class="s2">"CONTROL"</span><span class="p">,</span> <span class="s2">"ADM_RATE"</span><span class="p">,</span> <span class="s2">"SAT_AVG"</span><span class="p">,</span> <span class="s2">"UGDS"</span><span class="p">,</span> <span class="s2">"COSTT4_A"</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="n">scorecard</span><span class="p">[</span><span class="n">selected_columns</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -7844,7 +7866,7 @@ a.anchor-link {
 </div>
 <div class="jp-OutputArea jp-Cell-outputArea">
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
-<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[8]:</div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html" tabindex="0">
 <div>
 <style scoped="">
@@ -7869,10 +7891,16 @@ a.anchor-link {
 <th>CITY</th>
 <th>STABBR</th>
 <th>CONTROL</th>
+<th>PREDDEG</th>
 <th>ADM_RATE</th>
 <th>SAT_AVG</th>
 <th>UGDS</th>
 <th>COSTT4_A</th>
+<th>TUITIONFEE_IN</th>
+<th>C150_4</th>
+<th>MD_EARN_WNE_P10</th>
+<th>DEBT_MDN</th>
+<th>PCTPELL</th>
 </tr>
 </thead>
 <tbody>
@@ -7883,10 +7911,16 @@ a.anchor-link {
 <td>Normal</td>
 <td>AL</td>
 <td>1</td>
+<td>3</td>
 <td>0.5795</td>
 <td>938.0</td>
 <td>6124.0</td>
 <td>27732.0</td>
+<td>10558.0</td>
+<td>0.2771</td>
+<td>41266.0</td>
+<td>14250.0</td>
+<td>0.6419</td>
 </tr>
 <tr>
 <th>1</th>
@@ -7895,10 +7929,16 @@ a.anchor-link {
 <td>Birmingham</td>
 <td>AL</td>
 <td>1</td>
+<td>3</td>
 <td>0.8818</td>
 <td>1258.0</td>
 <td>11635.0</td>
 <td>27987.0</td>
+<td>9812.0</td>
+<td>0.6612</td>
+<td>59631.0</td>
+<td>14166.0</td>
+<td>0.3885</td>
 </tr>
 <tr>
 <th>2</th>
@@ -7907,10 +7947,16 @@ a.anchor-link {
 <td>Montgomery</td>
 <td>AL</td>
 <td>2</td>
+<td>3</td>
 <td>NaN</td>
 <td>NaN</td>
 <td>241.0</td>
 <td>NaN</td>
+<td>NaN</td>
+<td>0.5000</td>
+<td>40519.0</td>
+<td>19191.0</td>
+<td>0.4568</td>
 </tr>
 <tr>
 <th>3</th>
@@ -7919,10 +7965,16 @@ a.anchor-link {
 <td>Huntsville</td>
 <td>AL</td>
 <td>1</td>
+<td>3</td>
 <td>0.6857</td>
 <td>1319.0</td>
 <td>6591.0</td>
 <td>32089.0</td>
+<td>12458.0</td>
+<td>0.6246</td>
+<td>72098.0</td>
+<td>15000.0</td>
+<td>0.2781</td>
 </tr>
 <tr>
 <th>4</th>
@@ -7931,15 +7983,123 @@ a.anchor-link {
 <td>Montgomery</td>
 <td>AL</td>
 <td>1</td>
+<td>3</td>
 <td>0.9755</td>
 <td>976.0</td>
 <td>3477.0</td>
 <td>23655.0</td>
+<td>11248.0</td>
+<td>0.3070</td>
+<td>40585.0</td>
+<td>15000.0</td>
+<td>0.7197</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=32004346">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [9]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># Share of missing values per column, largest first</span>
+<span class="n">missing_share</span> <span class="o">=</span> <span class="n">scorecard</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">missing_share</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>SAT_AVG            0.835
+ADM_RATE           0.695
+C150_4             0.637
+COSTT4_A           0.486
+TUITIONFEE_IN      0.419
+DEBT_MDN           0.173
+MD_EARN_WNE_P10    0.157
+UGDS               0.127
+PCTPELL            0.124
+CONTROL            0.000
+PREDDEG            0.000
+STABBR             0.000
+INSTNM             0.000
+UNITID             0.000
+CITY               0.000
+CONTROL_LABEL      0.000
+dtype: float64
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=90c0c4d8">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Hypothesis-1:-The-median-debt-is-related-to-the-median-earnings.">Hypothesis 1: The median debt is related to the median earnings.<a class="anchor-link" href="#Hypothesis-1:-The-median-debt-is-related-to-the-median-earnings.">¶</a></h3><p>H0: Among bachelor’s-granting institutions (PREDDEG == 3) with both values reported, there is no monotonic association between DEBT_MDN and MD_EARN_WNE_P10 (Spearman ρ = 0).  <br/>
+H1: There is a monotonic association (ρ ≠ 0).</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=d5e4ef46">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [10]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">bachelor</span> <span class="o">=</span> <span class="n">scorecard</span><span class="p">[</span><span class="n">scorecard</span><span class="p">[</span><span class="s2">"PREDDEG"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">]</span>
+<span class="n">complete</span> <span class="o">=</span> <span class="n">bachelor</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"DEBT_MDN"</span><span class="p">,</span> <span class="s2">"MD_EARN_WNE_P10"</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Complete cases:"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">complete</span><span class="p">))</span>
+
+<span class="n">rho</span><span class="p">,</span> <span class="n">p_value</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">spearmanr</span><span class="p">(</span><span class="n">complete</span><span class="p">[</span><span class="s2">"DEBT_MDN"</span><span class="p">],</span> <span class="n">complete</span><span class="p">[</span><span class="s2">"MD_EARN_WNE_P10"</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Overall: rho ="</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">rho</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="s2">" p ="</span><span class="p">,</span> <span class="n">p_value</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>Complete cases: 1745
+Overall: rho = 0.37  p = 8.648113648537129e-58
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=bd45d7bf">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>The p_value is far below the typical significance level of α = 0.05, thus rejecting the null hypothesis. <br/>
+The correlation ρ = 0.37 indicates a moderate positive monotonic association between median debt (DEBT_MDN) and median earnings (MD_EARN_WNE_P10).</p>
 </div>
 </div>
 </div>
